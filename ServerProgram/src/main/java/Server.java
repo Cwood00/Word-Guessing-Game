@@ -1,28 +1,7 @@
-import javafx.application.Application;
+//Main server linstening thread, which creats
+//clientHandlerThread threads for working with each client
+public class Server extends Thread{
+    private class clientHandlerThread extends Thread{
 
-import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
-import javafx.stage.Stage;
-import javafx.util.Duration;
-
-
-public class Server extends Application {
-
-	public static void main(String[] args) {
-		launch(args);
-	}
-
-	@Override
-	public void start(Stage primaryStage) throws Exception {
-		primaryStage.setTitle("Project 3 server");
-
-		BorderPane root = new BorderPane();
-	     
-		Scene scene = new Scene(root, 700,700);
-		primaryStage.setScene(scene);
-		primaryStage.show();
-
-	}
+    }
 }
