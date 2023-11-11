@@ -4,6 +4,8 @@
 
 import javafx.application.Application;
 
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
@@ -13,7 +15,7 @@ import javafx.util.Duration;
 
 
 public class ServerGUI extends Application {
-	Server theServer;
+	static Server theServer;
 
 	public static void main(String[] args) {
 		launch(args);
@@ -23,9 +25,12 @@ public class ServerGUI extends Application {
 	public void start(Stage primaryStage) throws Exception {
 		primaryStage.setTitle("Project 3 server");
 
-		BorderPane root = new BorderPane();
+		Parent root = FXMLLoader.load(getClass().getResource("ServerSelectPortNumberScene.fxml"));
 	     
 		Scene scene = new Scene(root, 700,700);
+
+		scene.getStylesheets().add("ServerSelectPortNumberSceneStyle.css");
+
 		primaryStage.setScene(scene);
 		primaryStage.show();
 
