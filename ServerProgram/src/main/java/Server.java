@@ -1,6 +1,10 @@
-//Main server linstening thread, which creats
-//clientHandlerThread threads for working with each client
-public class Server extends Thread{
+//Back end of server application
+public class Server{
+    //Main server linstening thread
+    private class listeningTread extends Thread{
+
+    }
+    //Plays game with one client
     private class clientHandlerThread extends Thread{
 
     }

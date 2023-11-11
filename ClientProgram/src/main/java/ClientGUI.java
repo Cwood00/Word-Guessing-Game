@@ -14,7 +14,8 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 
-public class Client extends Application {
+public class ClientGUI extends Application {
+	ClientThread client;
 
 	public static void main(String[] args) {
 		launch(args);

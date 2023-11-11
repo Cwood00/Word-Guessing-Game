@@ -13,6 +13,7 @@ import javafx.util.Duration;
 
 
 public class ServerGUI extends Application {
+	Server theServer;
 
 	public static void main(String[] args) {
 		launch(args);
