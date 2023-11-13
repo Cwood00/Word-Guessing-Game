@@ -8,10 +8,12 @@
 
 <?import javafx.scene.text.Text?>
 <VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
-      fx:controller = "ServerGUIController" fx:id = "root">
+      fx:controller = "ServerGUIController" fx:id = "selectPortRoot"
+      alignment = "CENTER" spacing = "40">
+
     <Text text = "Enter Port Number" />
 
-    <HBox>
+    <HBox alignment = "CENTER">
         <TextField fx:id = "inputTextField" onKeyPressed = "#keyboardInputHandler"/>
         <Button fx:id = "submitButton" text = "submit" onAction = "#submitButtonHandler"/>
     </HBox>
