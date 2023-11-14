@@ -1,10 +1,6 @@
-//Ana Theys
-//Chris Wood
-//Client program for word game
-//Runs application thread, and creates listening thread
-
 import javafx.application.Application;
 
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
@@ -12,8 +8,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import javafx.scene.control.*;
 
-
+// Client program for word game
+// Runs application thread, and creates listening thread
 public class ClientGUI extends Application {
 	ClientThread client;
 
@@ -24,9 +22,19 @@ public class ClientGUI extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		primaryStage.setTitle("Project 3 client");
+		client = new ClientThread(data -> {
+			Platform.runLater(()->{
+				System.out.println(data);
+			});
+		});
+		client.start();
 
 		BorderPane root = new BorderPane();
-	     
+		Button b1 = new Button("Test connect port 5555");
+		b1.setOnAction(e->client.establishConnection("127.0.0.1", 5555));
+
+		root.setCenter(b1);
+
 		Scene scene = new Scene(root, 700,700);
 		primaryStage.setScene(scene);
 		primaryStage.show();
