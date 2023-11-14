@@ -11,11 +11,12 @@ import java.util.function.Consumer;
 //Back end of server application
 public class Server{
     listeningTread listener;
-    ArrayList<clientHandlerThread> clients ;
+    ArrayList<clientHandlerThread> clients;
     private Consumer<Serializable> GUIprinter;
 
     public Server(int portNumber, Consumer<Serializable> consumer){
 
+        clients = new ArrayList<>();
         GUIprinter = consumer;
         try {
             listener = new listeningTread(portNumber);
@@ -58,37 +59,47 @@ public class Server{
         private boolean playerHasWon;
         private boolean playerHasLost;
 
-        public clientHandlerThread(Socket incomingConnection){
+        public clientHandlerThread(Socket incomingConnection) {
+            System.out.println("\n\nCreated A client thead\n\n");
             connection = incomingConnection;
-
-            try {
-                out = new ObjectOutputStream(connection.getOutputStream());
-                in = new ObjectInputStream(connection.getInputStream());
-                connection.setTcpNoDelay(true);
-            }
-            catch (IOException e){
-                GUIprinter.accept("Failed to establish I/O streams");
-            }
-            populateWordsMaps();
-
-            solvedCategories = 0;
-            playerHasWon = false;
-            playerHasLost = false;
         }
+
         @Override
         public void run(){
             try {
+                System.out.println("\n\nRunning client thread\n\n");
+
+                try {
+                    in = new ObjectInputStream(connection.getInputStream());
+                    out = new ObjectOutputStream(connection.getOutputStream());
+                    connection.setTcpNoDelay(true);
+                }
+                catch (IOException e){
+                    System.out.println("\n\nFailed to establish I/O streams\n\n");
+                    GUIprinter.accept("Failed to establish I/O streams");
+                }
+                //populateWordsMaps();
+
+                solvedCategories = 0;
+                playerHasWon = false;
+                playerHasLost = false;
+                System.out.println("\n\nDone initializing in client thread\n\n");
+
                 GUIprinter.accept("Sending categories to user");
                 out.writeObject(categories);
-                while(!playerHasWon && !playerHasLost){
+                //while(!playerHasWon && !playerHasLost){
                     //TODO play game
-                }
+                //}
             }
             catch (IOException e){
                 GUIprinter.accept("Client has disconnected");
             }
         }
         private void populateWordsMaps(){
+            categories = new ArrayList<>();
+            words = new HashMap<>();
+            failedGuesses = new HashMap<>();
+
             categories.add("Category1");
             categories.add("Category2");
             categories.add("Category3");

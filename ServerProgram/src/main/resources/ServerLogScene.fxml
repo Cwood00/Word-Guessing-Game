@@ -12,6 +12,6 @@
       alignment = "CENTER">
 
     <Text text = "Server log"/>
-    <ListView/>
+    <ListView fx:id ="serverLog"/>
 
 </VBox>
