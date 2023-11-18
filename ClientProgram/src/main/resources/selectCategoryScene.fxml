@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="ClientGUIController"
+            prefHeight="700.0" prefWidth="700.0"
+            fx:id="selectCategoryRoot">
+
+    <top>
+        <Text fx:id="selectCategoryText"
+              text="Select a category"
+              textAlignment="CENTER"/>
+    </top>
+
+    <left>
+        <Text fx:id="remainingAttemptsText"
+              text="Attempts\nRemaining:"
+              textAlignment="CENTER"/>
+    </left>
+
+    <center>
+        <HBox fx:id="categoryButtonHolder" spacing="20">
+            <Button fx:id="category1Button" prefWidth="100" prefHeight="80"
+                    text="category 1"/>
+
+            <Button fx:id="category2Button" prefWidth="100" prefHeight="80"
+                    text="category 2"/>
+
+            <Button fx:id="category3Button" prefWidth="100" prefHeight="80"
+                    text="category 2"/>
+        </HBox>
+    </center>
+
+</BorderPane>

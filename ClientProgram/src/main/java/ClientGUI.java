@@ -1,6 +1,8 @@
 import javafx.application.Application;
 
 import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
@@ -13,7 +15,7 @@ import javafx.scene.control.*;
 // Client program for word game
 // Runs application thread, and creates listening thread
 public class ClientGUI extends Application {
-	ClientThread client;
+	static ClientThread client;
 
 	public static void main(String[] args) {
 		launch(args);
@@ -22,20 +24,11 @@ public class ClientGUI extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		primaryStage.setTitle("Project 3 client");
-		client = new ClientThread(data -> {
-			Platform.runLater(()->{
-				System.out.println(data);
-			});
-		});
-		client.start();
 
-		BorderPane root = new BorderPane();
-		Button b1 = new Button("Test connect port 5555");
-		b1.setOnAction(e->client.establishConnection("127.0.0.1", 5555));
-
-		root.setCenter(b1);
+		Parent root = FXMLLoader.load(getClass().getResource("selectCategoryScene.fxml"));
 
 		Scene scene = new Scene(root, 700,700);
+
 		primaryStage.setScene(scene);
 		primaryStage.show();
 	}

@@ -45,12 +45,13 @@ public class ClientThread extends Thread {
             System.out.println("Issue connecting to the server. Try a different address.");
         }
 
-        System.out.println("Successfully connected to the server?");
+        System.out.println("Successfully connected to the server");
 
-        while(true) {
-
-            // TODO - ?
-        }
+//        while(true) {
+//
+//            // TODO - ?
+                // receive categories from server
+//        }
 
     }
 
