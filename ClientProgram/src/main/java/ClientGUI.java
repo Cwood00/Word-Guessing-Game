@@ -25,7 +25,7 @@ public class ClientGUI extends Application {
 	public void start(Stage primaryStage) throws Exception {
 		primaryStage.setTitle("Project 3 client");
 
-		Parent root = FXMLLoader.load(getClass().getResource("selectCategoryScene.fxml"));
+		Parent root = FXMLLoader.load(getClass().getResource("connectionScene.fxml"));
 
 		Scene scene = new Scene(root, 700,700);
 

@@ -1,3 +1,5 @@
+import javafx.application.Platform;
+
 import java.net.Socket;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -13,6 +15,8 @@ public class ClientThread extends Thread {
     private Socket connection;
     private ObjectInputStream in;
     private ObjectOutputStream out;
+    private String ipAddress;
+    private int portNum;
 
     // gameplay data members
     private HashMap<String, Boolean> categories; // name of category, category solved
@@ -25,15 +29,23 @@ public class ClientThread extends Thread {
     // everything that happens when the thread is running
     public void run() {
 
+        System.out.println("Running");
+
+        establishConnection();
+
+        // receive categories from the server
+
     }
 
     // constructor - sets up the way to talk to the GUI
-    public ClientThread(Consumer<Serializable> call) {
-        guiUpdates = call;
+    public ClientThread(Consumer<Serializable> call, String ip, int port) {
+        this.guiUpdates = call;
+        this.ipAddress = ip;
+        this.portNum = port;
     }
 
     // takes in the address and port # and connects the client with the server
-    public void establishConnection(String ipAddress, int portNum) {
+    public void establishConnection() {
         // for same machine, use ip address "127.0.0.1"
         try {
             connection = new Socket(ipAddress,portNum);
@@ -43,15 +55,11 @@ public class ClientThread extends Thread {
         }
         catch(Exception e) {
             System.out.println("Issue connecting to the server. Try a different address.");
+            // kill thread
         }
 
         System.out.println("Successfully connected to the server");
-
-//        while(true) {
-//
-//            // TODO - ?
-                // receive categories from server
-//        }
+        // TODO - change scene
 
     }
 

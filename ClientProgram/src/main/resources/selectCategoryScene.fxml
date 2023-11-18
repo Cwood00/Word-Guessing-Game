@@ -37,6 +37,10 @@
             <Button fx:id="category3Button" prefWidth="100" prefHeight="80"
                     text="category 2"/>
         </HBox>
+
+        <HBox fx:id="attemptsHolder" spacing="20">
+
+        </HBox>
     </center>
 
 </BorderPane>

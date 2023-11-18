@@ -46,13 +46,12 @@ public class ClientGUIController {
         portInput.clear();
 
         ClientGUI.client = new ClientThread(data -> {
+            // TODO - change to take arraylist w data which says what function here to call
             Platform.runLater((Runnable) data);
-        });
+        }, ipAddress, portNum);
 
-        // ClientGUI.client.start();
-        ClientGUI.client.establishConnection(ipAddress, portNum);
+        ClientGUI.client.start();
 
-        // TODO - change scene
     }
 
 
