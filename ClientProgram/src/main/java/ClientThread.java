@@ -31,9 +31,44 @@ public class ClientThread extends Thread {
 
         System.out.println("Running");
 
-        establishConnection();
+        // connect to server
+        boolean connectedSuccessfully = establishConnection();
+        // if the thread did not connect, exit the run method and end the thread
+        if (!connectedSuccessfully) {
+            return;
+        }
 
-        // receive categories from the server
+        // receive categories from server
+        ArrayList<String> categoryTitles;
+        try{
+            categoryTitles = (ArrayList<String>) in.readObject();
+        } catch (Exception e) {
+            System.out.println("Categories not received");
+
+            categoryTitles = new ArrayList<>(3);
+            categoryTitles.add("error");
+            categoryTitles.add("error");
+            categoryTitles.add("error");
+        }
+        // System.out.println("Array list contains:" + categoryTitles.get(0) + categoryTitles.get(1) + categoryTitles.get(2));
+
+        categories = new HashMap<>();
+        categories.put(categoryTitles.get(0), false);
+        categories.put(categoryTitles.get(1), false);
+        categories.put(categoryTitles.get(2), false);
+
+        ArrayList<String> guiFunctionCall = new ArrayList<>();
+        guiFunctionCall.add("setCategoryScene");
+        guiFunctionCall.add(categoryTitles.get(0));
+        guiFunctionCall.add(categoryTitles.get(1));
+        guiFunctionCall.add(categoryTitles.get(2));
+
+        guiUpdates.accept(guiFunctionCall);
+        // ^ tells GUI what the category titles are,
+        // GUI changes to the select category scene
+
+
+        // idk somehow send category selection to the server
 
     }
 
@@ -45,7 +80,7 @@ public class ClientThread extends Thread {
     }
 
     // takes in the address and port # and connects the client with the server
-    public void establishConnection() {
+    public boolean establishConnection() {
         // for same machine, use ip address "127.0.0.1"
         try {
             connection = new Socket(ipAddress,portNum);
@@ -55,11 +90,11 @@ public class ClientThread extends Thread {
         }
         catch(Exception e) {
             System.out.println("Issue connecting to the server. Try a different address.");
-            // kill thread
+            return false;
         }
 
         System.out.println("Successfully connected to the server");
-        // TODO - change scene
+        return true;
 
     }
 

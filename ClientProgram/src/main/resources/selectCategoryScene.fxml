@@ -7,6 +7,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Font?>
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
@@ -15,32 +16,43 @@
             fx:id="selectCategoryRoot">
 
     <top>
-        <Text fx:id="selectCategoryText"
-              text="Select a category"
-              textAlignment="CENTER"/>
+        <HBox alignment="CENTER">
+            <Text fx:id="selectCategoryText"
+                  text="Select A Category">
+                <font>
+                    <Font size="50.0" />
+                </font>
+            </Text>
+        </HBox>
     </top>
 
     <left>
-        <Text fx:id="remainingAttemptsText"
-              text="Attempts\nRemaining:"
-              textAlignment="CENTER"/>
+        <VBox alignment="CENTER">
+            <Text fx:id="remainingAttemptsText"
+                  text="Attempts Remaining:"/>
+        </VBox>
     </left>
 
     <center>
-        <HBox fx:id="categoryButtonHolder" spacing="20">
-            <Button fx:id="category1Button" prefWidth="100" prefHeight="80"
-                    text="category 1"/>
+        <VBox alignment="CENTER">
+            <HBox fx:id="categoryButtonHolder" spacing="20" alignment="CENTER">
+                <Button fx:id="category1Button" prefWidth="100" prefHeight="120"
+                        text="empty - 1"/>
 
-            <Button fx:id="category2Button" prefWidth="100" prefHeight="80"
-                    text="category 2"/>
+                <Button fx:id="category2Button" prefWidth="100" prefHeight="120"
+                        text="empty - 2"/>
 
-            <Button fx:id="category3Button" prefWidth="100" prefHeight="80"
-                    text="category 2"/>
-        </HBox>
+                <Button fx:id="category3Button" prefWidth="100" prefHeight="120"
+                        text="empty - 3"/>
+            </HBox>
 
-        <HBox fx:id="attemptsHolder" spacing="20">
+            <HBox fx:id="attemptsHolder" spacing="110" alignment="CENTER">
+                <Text fx:id="category1Attempts" text = "3"/>
+                <Text fx:id="category2Attempts" text = "3"/>
+                <Text fx:id="category3Attempts" text = "3"/>
+            </HBox>
+        </VBox>
 
-        </HBox>
     </center>
 
 </BorderPane>

@@ -1,11 +1,17 @@
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Objects;
 
 // Contains all the controllers for the fxml elements
 public class ClientGUIController {
@@ -39,15 +45,25 @@ public class ClientGUIController {
     public Button connectServerButton;
 
 
-    public void connectToServer() {
+    public void connectToServer() { // event handler for connectServerButton
         String ipAddress = ipInput.getText();
         ipInput.clear();
         int portNum = Integer.parseInt(portInput.getText());
         portInput.clear();
 
+        // definition for what happens when ClientThread calls guiUpdates.accept(data)
         ClientGUI.client = new ClientThread(data -> {
-            // TODO - change to take arraylist w data which says what function here to call
-            Platform.runLater((Runnable) data);
+            Platform.runLater(()-> {
+                // data will always be an arraylist of strings
+                // first element is what function to call
+                // rest of elements are parameters needed for that function
+                ArrayList<String> input = (ArrayList<String>) data;
+                if (Objects.equals(input.get(0), "setCategoryScene")) {
+                    //System.out.println(input.toString());
+                    setCategoryScene(input.get(1), input.get(2), input.get(3));
+                }
+                // TODO - continue writing
+            }); // end runLater
         }, ipAddress, portNum);
 
         ClientGUI.client.start();
@@ -79,6 +95,42 @@ public class ClientGUIController {
     @FXML
     public Button category3Button;
 
+    @FXML
+    public HBox attemptsHolder;
 
+    @FXML
+    public Text category1Attempts;
+
+    @FXML
+    public Text category2Attempts;
+
+    @FXML
+    public Text category3Attempts;
+
+
+    void setCategoryScene(String cat1, String cat2, String cat3) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("selectCategoryScene.fxml"));
+            Parent categoryRoot = loader.load();
+
+            connectionRoot.getScene().setRoot(categoryRoot);
+
+            ClientGUIController newController = loader.getController();
+
+            newController.category1Button.setText(cat1);
+            newController.category2Button.setText(cat2);
+            newController.category3Button.setText(cat3);
+
+
+            // connectionRoot.getScene().setRoot(categoryRoot);
+
+        } catch (IOException e){
+            System.out.println("Error unable to load fxml file for select category log scene");
+            e.printStackTrace();
+
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+    }
 
 } // end class
