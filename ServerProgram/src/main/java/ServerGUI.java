@@ -37,7 +37,7 @@ public class ServerGUI extends Application {
 		primaryStage.setScene(scene);
 		primaryStage.show();
 
-
+		//Ends all currently running threads when the window is closed
 		primaryStage.setOnCloseRequest(t -> {
             Platform.exit();
             System.exit(0);
