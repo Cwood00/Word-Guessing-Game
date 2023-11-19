@@ -9,11 +9,7 @@ import java.util.ArrayList;
 
 class ServerTests{
 
-	static String callBackReturn;
-	@BeforeEach
-	void setUp(){
-		callBackReturn = "";
-	}
+	String callBackReturn;
 
 	@Test
 	void serverListensForClients(){

@@ -38,7 +38,7 @@ public class ServerGUIController {
                 });
             });
         }
-        catch(NumberFormatException ex){
+        catch(NumberFormatException e){
             errorMessageText.setText("Error port number must be a number");
             inputTextField.clear();
         }

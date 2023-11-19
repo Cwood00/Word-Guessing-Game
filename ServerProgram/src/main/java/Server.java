@@ -1,7 +1,4 @@
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -22,6 +19,7 @@ public class Server{
         GUIprinter = consumer;
         try {
             listener = new listeningThread(portNumber);
+            listener.setDaemon(true);
             listener.start();
         }
         catch(IOException e){
@@ -79,7 +77,7 @@ public class Server{
                 GUIprinter.accept("Failed to establish I/O streams for " + this.getName());
             }
             try {
-                populateWordsMaps();
+                populateWordsMaps("src/main/resources/Words.txt");
 
                 solvedCategories = 0;
                 playerHasWon = false;
@@ -99,6 +97,9 @@ public class Server{
                         GUIprinter.accept(this.getName() + " has sent an invalid class");
                     }
                 }
+            }
+            catch (FileNotFoundException e){
+                GUIprinter.accept(this.getName() + " could not open words file");
             }
             catch (IOException e){
                 GUIprinter.accept(this.getName() + " has disconnected");
@@ -154,37 +155,34 @@ public class Server{
             }
         }
 
-        private void populateWordsMaps(){
-            //TODO read this information from a file
-            categories = new ArrayList<>();
-            words = new HashMap<>();
-            failedWords = new HashMap<>();
+        private void populateWordsMaps(String fileName) throws IOException {
+            this.categories = new ArrayList<>();
+            this.words = new HashMap<>();
+            this.failedWords = new HashMap<>();
 
-            categories.add("Category1");
-            categories.add("Category2");
-            categories.add("Category3");
+            BufferedReader fileReader = new BufferedReader(new FileReader(fileName));
 
-            ArrayList<String> Category1Words = new ArrayList<>();
-            Category1Words.add("Cat1Word1");
-            Category1Words.add("Cat1Word2");
-            Category1Words.add("Cat1Word3");
-            words.put(categories.get(0), Category1Words);
-            failedWords.put(categories.get(0), 0);
+            String category = fileReader.readLine();
+            while(category != null && !category.isEmpty()) {
+                ArrayList<String> categoryWords = new ArrayList<>();
 
-            ArrayList<String> Category2Words = new ArrayList<>();
-            Category2Words.add("Cat2Word1");
-            Category2Words.add("Cat2Word2");
-            Category2Words.add("Cat2Word3");
-            words.put(categories.get(1), Category2Words);
-            failedWords.put(categories.get(1), 0);
+                String words = fileReader.readLine();
+                int commaIndex = words.indexOf(',');
+                while(commaIndex != -1){
+                    categoryWords.add(words.substring(0, commaIndex).trim());
+                    words = words.substring(commaIndex + 1);
+                    commaIndex = words.indexOf(',');
+                }
+                categoryWords.add(words.trim());
 
-            ArrayList<String> Category3Words = new ArrayList<>();
-            Category3Words.add("Cat3Word1");
-            Category3Words.add("Cat3Word2");
-            Category3Words.add("Cat3Word3");
-            words.put(categories.get(2), Category3Words);
-            failedWords.put(categories.get(2), 0);
+                this.categories.add(category);
+                this.words.put(category, categoryWords);
+                this.failedWords.put(category, 0);
 
+                category = fileReader.readLine();
+            }
+
+            fileReader.close();
         }
     }
 }
