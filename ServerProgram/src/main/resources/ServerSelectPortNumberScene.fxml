@@ -13,11 +13,11 @@
 
     <Text text = "Enter Port Number" />
 
-    <HBox alignment = "CENTER">
+    <HBox alignment = "CENTER" spacing = "10">
         <TextField fx:id = "inputTextField" onKeyPressed = "#keyboardInputHandler"/>
-        <Button fx:id = "submitButton" text = "submit" onAction = "#submitButtonHandler"/>
+        <Button fx:id = "submitButton" text = "Submit" onAction = "#submitButtonHandler"/>
     </HBox>
 
-    <Text fx:id = "errorMessageText"/>
+    <Text fx:id = "errorMessageText" style="-fx-text-fill: red"/>
 
 </VBox>

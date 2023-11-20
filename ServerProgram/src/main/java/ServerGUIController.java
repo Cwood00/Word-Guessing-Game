@@ -8,6 +8,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
 import java.io.IOException;
@@ -40,6 +41,7 @@ public class ServerGUIController {
         }
         catch(NumberFormatException e){
             errorMessageText.setText("Error port number must be a number");
+            errorMessageText.setFill(Color.RED);
             inputTextField.clear();
         }
         catch (IOException e){

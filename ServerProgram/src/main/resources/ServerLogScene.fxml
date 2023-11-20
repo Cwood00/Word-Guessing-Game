@@ -9,9 +9,9 @@
 <?import javafx.scene.text.Text?>
 <VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
       fx:controller = "ServerGUIController" fx:id = "logRoot"
-      alignment = "CENTER">
+      alignment = "CENTER" spacing = "40">
 
     <Text text = "Server log"/>
-    <ListView fx:id ="serverLog"/>
+    <ListView fx:id ="serverLog" maxHeight = "600" maxWidth = "600"/>
 
 </VBox>

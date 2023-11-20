@@ -1,0 +1,7 @@
+.root{
+    -fx-background-color: lightGray;
+    -fx-font-size: 20px;
+}
+.button{
+    -fx-background-color: green
+}

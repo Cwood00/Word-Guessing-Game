@@ -1,0 +1,7 @@
+.root{
+    -fx-background-color: lightGray;
+    -fx-font-size: 24px;
+}
+.list-view {
+    -fx-font-size: 14px;
+}

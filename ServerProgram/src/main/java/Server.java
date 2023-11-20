@@ -38,7 +38,7 @@ public class Server{
             try{
                 while (true){
                     clientHandlerThread newClient = new clientHandlerThread(listeningSocket.accept());
-                    newClient.setName("client #" + nextClientNumber);
+                    newClient.setName("Client #" + nextClientNumber);
                     nextClientNumber++;
                     newClient.start();
                     clients.add(newClient);
