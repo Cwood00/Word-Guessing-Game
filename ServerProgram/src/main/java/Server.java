@@ -8,8 +8,8 @@ import java.util.function.Consumer;
 
 //Back end of server application
 public class Server{
-    listeningThread listener;
-    ArrayList<clientHandlerThread> clients;
+    ListeningThread listener;
+    ArrayList<ClientHandlerThread> clients;
     private Consumer<Serializable> GUIprinter;
     int nextClientNumber = 1;
 
@@ -18,7 +18,7 @@ public class Server{
         clients = new ArrayList<>();
         GUIprinter = consumer;
         try {
-            listener = new listeningThread(portNumber);
+            listener = new ListeningThread(portNumber);
             listener.setDaemon(true);
             listener.start();
         }
@@ -27,17 +27,18 @@ public class Server{
         }
     }
     //Main server listening thread
-    private class listeningThread extends Thread{
+    private class ListeningThread extends Thread{
         ServerSocket listeningSocket;
-        public listeningThread(int portNumber) throws IOException {
+        public ListeningThread(int portNumber) throws IOException {
             listeningSocket = new ServerSocket(portNumber);
         }
         @Override
         public void run(){
             GUIprinter.accept("Server is listening for clients");
             try{
+                //Accept loop each client is assigned a separate ClientHandlerThread to play the game with
                 while (true){
-                    clientHandlerThread newClient = new clientHandlerThread(listeningSocket.accept());
+                    ClientHandlerThread newClient = new ClientHandlerThread(listeningSocket.accept());
                     newClient.setName("Client #" + nextClientNumber);
                     nextClientNumber++;
                     newClient.start();
@@ -50,24 +51,25 @@ public class Server{
         }
     }//End class ListeningThread
     //Plays game with one client
-    private class clientHandlerThread extends Thread{
+    class ClientHandlerThread extends Thread{
         Socket connection;
         ObjectInputStream in;
         ObjectOutputStream out;
-        private ArrayList<String> categories;
-        private HashMap<String, ArrayList<String>> words;
-        private HashMap<String, Integer> failedWords;
+        ArrayList<String> categories;
+        HashMap<String, ArrayList<String>> words;
+        HashMap<String, Integer> failedWords;
         private int solvedCategories;
         private boolean playerHasWon;
         private boolean playerHasLost;
         private Random rand;
 
-        public clientHandlerThread(Socket incomingConnection) {
+        public ClientHandlerThread(Socket incomingConnection) {
             connection = incomingConnection;
         }
 
         @Override
         public void run(){
+            //Set up I/O streams
             try {
                 out = new ObjectOutputStream(connection.getOutputStream());
                 in = new ObjectInputStream(connection.getInputStream());
@@ -76,6 +78,7 @@ public class Server{
             catch (IOException e){
                 GUIprinter.accept("Failed to establish I/O streams for " + this.getName());
             }
+            //Initialize variables
             try {
                 populateWordsMaps("src/main/resources/Words.txt");
 
@@ -83,9 +86,10 @@ public class Server{
                 playerHasWon = false;
                 playerHasLost = false;
                 rand = new Random(System.currentTimeMillis());
-
+                //Send categories to client
                 GUIprinter.accept("Sending categories to " + this.getName());
                 out.writeObject(categories);
+                //Main game loop
                 while(!playerHasWon && !playerHasLost){
                     try {
                         String selectedCategory = in.readObject().toString();
@@ -106,30 +110,36 @@ public class Server{
             }
         }
 
-        private void playRound(String category) throws IOException, ClassNotFoundException {
+         void playRound(String category) throws IOException, ClassNotFoundException {
             int incorrectGuesses = 0;
-
+            //Randomly choose a word from the category for the user to guess
             ArrayList<String> categoryWord = words.get(category);
             String wordToGuess = categoryWord.get(rand.nextInt(categoryWord.size()));
+            String remainingWordToGuess = wordToGuess;
             categoryWord.remove(wordToGuess);
             GUIprinter.accept(this.getName() + " is trying to guess " + wordToGuess);
-
+            //Set up the string being sent to the user
             String clientDisplayString = "_".repeat(wordToGuess.length());
+            out.writeObject(clientDisplayString);
             boolean roundHasEnded = false;
-
+            //Play the round
             while(!roundHasEnded){
-                out.writeObject(clientDisplayString);
-                char guess = (Character)in.readObject();
+                //Receive the guess from the client
+                char guess = Character.toLowerCase((Character)in.readObject());
+                //Determine if the guess is in the word, and mark correct letters is string sent to user
                 boolean guessInWord = false;
-                int guessIndex = wordToGuess.indexOf(guess);
+                int guessIndex = remainingWordToGuess.toLowerCase().indexOf(guess);
                 while(guessIndex != -1){
-                    clientDisplayString = clientDisplayString.substring(0, guessIndex) + guess + clientDisplayString.substring(guessIndex + 1);
+                    clientDisplayString = clientDisplayString.substring(0, guessIndex) + wordToGuess.charAt(guessIndex) + clientDisplayString.substring(guessIndex + 1);
+                    remainingWordToGuess = remainingWordToGuess.substring(0, guessIndex) + "_" + remainingWordToGuess.substring(guessIndex + 1);
                     guessInWord = true;
-                    guessIndex = wordToGuess.indexOf(guess);
+                    guessIndex = remainingWordToGuess.toLowerCase().indexOf(guess);
                 }
+                //Count incorrect guesses
                 if(!guessInWord){
                     incorrectGuesses += 1;
                 }
+                //End the round if the client uses are their guesses, or has guessed every letter in the word
                 if(incorrectGuesses >= 6){
                     this.failedWords.replace(category, (this.failedWords.get(category) + 1));
                     roundHasEnded = true;
@@ -138,10 +148,13 @@ public class Server{
                     roundHasEnded = true;
                     GUIprinter.accept(this.getName() + " successfully guessed " + wordToGuess);
                 }
+                //Send partially guessed word
+                out.writeObject(clientDisplayString);
             }
         }
 
-        private void checkGameEnd(){
+        void checkGameEnd(){
+            //Game ends when all 3 categories have been solved, or the client has fail 3 guesses in a category
             if(solvedCategories == 3){
                 playerHasWon = true;
                 GUIprinter.accept(this.getName() + " has won");
@@ -155,7 +168,7 @@ public class Server{
             }
         }
 
-        private void populateWordsMaps(String fileName) throws IOException {
+        void populateWordsMaps(String fileName) throws IOException {
             this.categories = new ArrayList<>();
             this.words = new HashMap<>();
             this.failedWords = new HashMap<>();
