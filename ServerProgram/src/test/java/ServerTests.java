@@ -200,4 +200,59 @@ class ServerTests{
 			fail("Server sent bad class");
 		}
 	}
+	@Test
+	void loseGame(){
+		Server server = new Server(5561, s->{
+			callBackReturn = s.toString();
+		});
+		try {
+			Socket clientSocket = new Socket("127.0.0.1", 5561);
+			ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
+			ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
+			clientSocket.setTcpNoDelay(true);
+
+			//Put the tread to sleep, to wait for server
+			try {Thread.sleep(100);}
+			catch (InterruptedException e){/* no-op */}
+
+			Server.ClientHandlerThread clientHandler = server.clients.get(0);
+			clientHandler.populateWordsMaps("src/test/resources/testWords3.txt");
+
+			ArrayList<String> categories = (ArrayList<String>)in.readObject();
+
+			//Play 3 games losing each
+			for(int i = 0; i < 3; i++){
+				out.writeObject("Fruits");
+				String receivedString = in.readObject().toString();
+
+				out.writeObject('z');
+				receivedString = in.readObject().toString();
+
+				out.writeObject('y');
+				receivedString = in.readObject().toString();
+
+				out.writeObject('x');
+				receivedString = in.readObject().toString();
+
+				out.writeObject('w');
+				receivedString = in.readObject().toString();
+
+				out.writeObject('v');
+				receivedString = in.readObject().toString();
+
+				out.writeObject('u');
+				receivedString = in.readObject().toString();
+			}
+			//Put the tread to sleep, to wait for server call back response
+			try {Thread.sleep(100);}
+			catch (InterruptedException e){/* no-op */}
+			assertEquals("Client #1 has lost", callBackReturn);
+		}
+		catch (IOException e) {
+			fail("Could not connect to the server");
+		}
+		catch (ClassNotFoundException e){
+			fail("Server sent bad class");
+		}
+	}
 }
