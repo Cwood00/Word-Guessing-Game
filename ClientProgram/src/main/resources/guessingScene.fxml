@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="ClientGUIController"
+            prefHeight="700.0" prefWidth="700.0">
+
+    <center>
+        <VBox alignment="CENTER">
+
+        </VBox>
+    </center>
+
+    <bottom>
+        <Text fx:id="instructionsText2" wrappingWidth="700"
+              text="Enter one letter at a time to guess. Correct guesses will be displayed in their position(s). You get 6 incorrect guesses. If you reach 6 incorrect guesses, you will get to choose another word to guess from any category (up to 3 attempts per category).">
+            <font>
+                <Font size="20.0" />
+            </font>
+        </Text>
+    </bottom>
+
+</BorderPane>

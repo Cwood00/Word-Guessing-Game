@@ -29,7 +29,11 @@
     <left>
         <VBox alignment="CENTER">
             <Text fx:id="remainingAttemptsText"
-                  text="Attempts Remaining:"/>
+                  text="Attempts Remaining:">
+                <font>
+                    <Font size="18.0" />
+                </font>
+            </Text>
         </VBox>
     </left>
 
@@ -37,13 +41,16 @@
         <VBox alignment="CENTER">
             <HBox fx:id="categoryButtonHolder" spacing="20" alignment="CENTER">
                 <Button fx:id="category1Button" prefWidth="100" prefHeight="120"
-                        text="empty - 1"/>
+                        text="empty - 1"
+                        onAction="#sendCategoryChoice"/>
 
                 <Button fx:id="category2Button" prefWidth="100" prefHeight="120"
-                        text="empty - 2"/>
+                        text="empty - 2"
+                        onAction="#sendCategoryChoice"/>
 
                 <Button fx:id="category3Button" prefWidth="100" prefHeight="120"
-                        text="empty - 3"/>
+                        text="empty - 3"
+                        onAction="#sendCategoryChoice"/>
             </HBox>
 
             <HBox fx:id="attemptsHolder" spacing="110" alignment="CENTER">
@@ -52,7 +59,15 @@
                 <Text fx:id="category3Attempts" text = "3"/>
             </HBox>
         </VBox>
-
     </center>
+
+    <bottom>
+        <Text fx:id="instructionsText" wrappingWidth="700"
+              text="Correctly guess one word from each category to win. You get 3 attempts per category, and you can attempt the categories in any order.">
+            <font>
+                <Font size="24.0" />
+            </font>
+        </Text>
+    </bottom>
 
 </BorderPane>

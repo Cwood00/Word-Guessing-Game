@@ -1,6 +1,7 @@
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -45,7 +46,8 @@ public class ClientGUIController {
     public Button connectServerButton;
 
 
-    public void connectToServer() { // event handler for connectServerButton
+    // event handler for connectServerButton
+    public void connectToServer() {
         String ipAddress = ipInput.getText();
         ipInput.clear();
         int portNum = Integer.parseInt(portInput.getText());
@@ -107,6 +109,8 @@ public class ClientGUIController {
     @FXML
     public Text category3Attempts;
 
+    @FXML
+    public Text instructionsText;
 
     void setCategoryScene(String cat1, String cat2, String cat3) {
         try {
@@ -122,8 +126,6 @@ public class ClientGUIController {
             newController.category3Button.setText(cat3);
 
 
-            // connectionRoot.getScene().setRoot(categoryRoot);
-
         } catch (IOException e){
             System.out.println("Error unable to load fxml file for select category log scene");
             e.printStackTrace();
@@ -132,5 +134,17 @@ public class ClientGUIController {
             e.printStackTrace();
         }
     }
+
+    // event handler for category buttons
+    public void sendCategoryChoice(ActionEvent event) {
+        Button source = (Button) event.getSource();
+        ClientGUI.client.currentCategory = source.getText();
+        System.out.println("In gui controller: text is " + source.getText());
+    }
+
+
+// SCENE 3 - guessing letters  ------------------------------------------------
+
+
 
 } // end class
