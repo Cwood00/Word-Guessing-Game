@@ -7,6 +7,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 // Back end of client application
@@ -23,7 +24,7 @@ public class ClientThread extends Thread {
     private HashMap<String, Boolean> categories; // name of category, category solved
     protected String currentCategory;
     protected Character currentGuess;
-    private ArrayList<Character> wrongGuesses;
+    private String wrongGuesses;
     private String currGuessState;
     private Consumer<Serializable> guiUpdates;
 
@@ -45,26 +46,36 @@ public class ClientThread extends Thread {
         currentGuess = null;
 
         // receives category titles from the server and updates the GUI
-        changeToGuessingScene();
+        changeToCategoryScene();
+
+        System.out.println("CT: Changed to category scene");
 
         // sends selected category to the server
         selectCategory();
 
+        System.out.println("CT: Sent category to server");
 
-        // receives current guess state
-        try {
-            currGuessState = in.readObject().toString();
-        } catch (Exception e) {
-            System.out.println("Error receiving current guess state");
+
+        // receives current guess state and changes to guessing scene
+        changeToGuessingScene();
+
+        System.out.println("CT: Changed to guessing scene, current guessing state is: " + currGuessState);
+
+        // while round is still going
+        wrongGuesses = "";
+        while (wrongGuesses.length() < 6 && currGuessState.contains("_")) {
+
+            // user sends guess, receives updated guess state
+            sendGuess();
+
+            System.out.println("CT: Sent guess to server");
+
+            // receives updated game state, updates scene
+            updateGuessingScene();
+
+            System.out.println("CT: Updated guessing state is: " + currGuessState);
+
         }
-        // System.out.println("Current game state: " + currGuessState);
-
-//        updateGuessingScene();
-//
-//        // user sends guess, receives updated guess state
-//        sendGuess();
-
-
 
 
         System.out.println("Now what");
@@ -96,47 +107,8 @@ public class ClientThread extends Thread {
 
     }
 
-    // tells the server what category the user selected
-    public void selectCategory() {
-        while (currentCategory.isEmpty()) {
-            try {
-                sleep(100);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            // System.out.println("Current category: " + currentCategory);
-        } // infinite loop waiting until a button sets the selected category
-        try {
-            // System.out.println("In client thread: text is " + currentCategory);
-            out.writeObject(currentCategory);
-            currentCategory = "";
-        } catch (Exception e) {
-            System.out.println("Unable to send category to server");
-        }
-    } // end selectCategory
-
-    // takes in the user's guess and sends it to the server
-    // also receives updated game state
-    public void sendGuess() {
-        while (currentGuess == null) {
-            try {
-                sleep(100);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        } // infinite loop waiting until a button sets the selected guess
-        try {
-            out.writeObject(currentGuess);
-            currentGuess = null;
-            currGuessState = in.readObject().toString();
-        } catch (Exception e) {
-            System.out.println("Error sending current guess or reading current guess state");
-        }
-    } // end sendGuess
-
-
-    // receives category titles and tells the GUI to change to the guessing scene
-    public void changeToGuessingScene() {
+    // receives category titles and tells the GUI to change to the category scene
+    public void changeToCategoryScene() {
         // receive categories from server
         ArrayList<String> categoryTitles;
         try{
@@ -168,9 +140,99 @@ public class ClientThread extends Thread {
         guiUpdates.accept(guiFunctionCall);
     }
 
+    // tells the server what category the user selected
+    public void selectCategory() {
+        while (currentCategory.isEmpty()) {
+            try {
+                sleep(100);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            // System.out.println("Current category: " + currentCategory);
+        } // infinite loop waiting until a button sets the selected category
+        try {
+            // System.out.println("In client thread: text is " + currentCategory);
+            out.writeObject(currentCategory);
+            currentCategory = "";
+        } catch (Exception e) {
+            System.out.println("Unable to send category to server");
+        }
+    } // end selectCategory
+
+
+    // receives current guessing state and tells the GUI to change to the guessing scene
+    public void changeToGuessingScene() {
+        // receive current guessing state from server
+        String currentState;
+        try{
+            currentState = in.readObject().toString();
+        } catch (Exception e) {
+            System.out.println("Guessing state not received");
+            currentState = "error in receiving word";
+        }
+
+        // set class variable
+        currGuessState = currentState;
+
+        // tells GUI what the guess state is,
+        // GUI changes to the guessing scene
+        ArrayList<String> guiFunctionCall = new ArrayList<>();
+        guiFunctionCall.add("setGuessingScene");
+        guiFunctionCall.add(currGuessState);
+
+        guiUpdates.accept(guiFunctionCall);
+    }
+
+
+    // takes in the user's guess and sends it to the server
+    public void sendGuess() {
+        while (currentGuess == null) {
+            try {
+                sleep(100);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        } // infinite loop waiting until a button sets the selected guess
+        System.out.println("In clientThread: guess is " + currentGuess);
+        try {
+            out.writeObject(currentGuess);
+        } catch (Exception e) {
+            System.out.println("Error sending current guess");
+        }
+    } // end sendGuess
+
+
     // tells the GUI to update the guessing scene
     public void updateGuessingScene() {
-        // TODO - write
+        // receive updated guessing state from server
+        String currentState;
+        try{
+            currentState = in.readObject().toString();
+        } catch (Exception e) {
+            System.out.println("Guessing state not received");
+            currentState = "error in receiving word";
+        }
+
+        // checks if the guess was incorrect or not (if the string changed or not)
+        if (!Objects.equals(currentState, currGuessState)) {
+            if (wrongGuesses.isEmpty()) {
+                wrongGuesses = "" + currentGuess;
+            } else {
+                wrongGuesses = wrongGuesses + ", " + currentGuess;
+            }
+            currentGuess = null;
+        }
+
+        // set class variable
+        currGuessState = currentState;
+
+        // tells GUI what the guess state is,
+        // GUI changes to the guessing scene
+        ArrayList<String> guiFunctionCall = new ArrayList<>();
+        guiFunctionCall.add("updateGuessingScene");
+        guiFunctionCall.add(currGuessState);
+
+        guiUpdates.accept(guiFunctionCall);
     }
 
 

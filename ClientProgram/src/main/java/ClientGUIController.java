@@ -9,6 +9,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.scene.Scene;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -60,11 +61,22 @@ public class ClientGUIController {
                 // first element is what function to call
                 // rest of elements are parameters needed for that function
                 ArrayList<String> input = (ArrayList<String>) data;
+
+                // change to category scene
                 if (Objects.equals(input.get(0), "setCategoryScene")) {
                     //System.out.println(input.toString());
                     setCategoryScene(input.get(1), input.get(2), input.get(3));
                 }
+                // change to guessing scene
+                else if (Objects.equals(input.get(0), "setGuessingScene")) {
+                    setGuessingScene(input.get(1));
+                }
+                // update guessing scene
+                else if (Objects.equals(input.get(0), "updateGuessingScene")) {
+                    updateGuessingScene(input.get(1));
+                }
                 // TODO - continue writing
+
             }); // end runLater
         }, ipAddress, portNum);
 
@@ -115,9 +127,9 @@ public class ClientGUIController {
     void setCategoryScene(String cat1, String cat2, String cat3) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("selectCategoryScene.fxml"));
-            Parent categoryRoot = loader.load();
+            selectCategoryRoot = loader.load();
 
-            connectionRoot.getScene().setRoot(categoryRoot);
+            connectionRoot.getScene().setRoot(selectCategoryRoot);
 
             ClientGUIController newController = loader.getController();
 
@@ -144,6 +156,99 @@ public class ClientGUIController {
 
 
 // SCENE 3 - guessing letters  ------------------------------------------------
+
+    @FXML
+    BorderPane guessingSceneRoot;
+
+    @FXML
+    TextField displayGuessState;
+
+    @FXML
+    TextField incorrectGuessesText;
+
+    @FXML
+    TextField incorrectGuessesDisplay;
+
+    @FXML
+    TextField enterGuessText;
+
+    @FXML
+    TextField enterGuessInput;
+
+    @FXML
+    Button sendCharacterButton;
+
+    @FXML
+    TextField errorDisplay;
+
+    @FXML
+    Text instructionsText2;
+
+
+    // initializes the guessing scene
+    public void setGuessingScene(String currGuessState) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("guessingScene.fxml"));
+            guessingSceneRoot = loader.load();
+
+            selectCategoryRoot.getScene().setRoot(guessingSceneRoot);
+
+            ClientGUIController newController = loader.getController();
+
+            newController.displayGuessState.setText(currGuessState);
+
+
+        } catch (IOException e){
+            System.out.println("Error unable to load fxml file for select category log scene");
+            e.printStackTrace();
+
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    // event handler for sendCharacterButton
+    public void sendCharacter(ActionEvent event) {
+        String input = enterGuessInput.getText();
+        if (input.length() != 1) {
+            System.out.println("Enter only one character at a time");
+            errorDisplay.setText("Enter only one character at a time");
+            errorDisplay.setStyle("-fx-background-color: red");
+            enterGuessInput.clear();
+
+        } else {
+            errorDisplay.setStyle("-fx-background-color: white");
+            errorDisplay.setText("Sending '" + input + "' to server...");
+            ClientGUI.client.currentGuess = input.charAt(0);
+        }
+    }
+
+    // updates the guessing scene
+    public void updateGuessingScene(String currGuessState) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("guessingScene.fxml"));
+
+            Scene tempScene = guessingSceneRoot.getScene();
+
+            guessingSceneRoot = loader.load();
+
+            tempScene.setRoot(guessingSceneRoot);
+            // TODO - THINKS SCENE IS NULL @ above line
+
+            ClientGUIController newController = loader.getController();
+
+            newController.displayGuessState.setText(currGuessState);
+
+
+        } catch (IOException e){
+            System.out.println("Error unable to load fxml file for select category log scene");
+            e.printStackTrace();
+
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+    }
 
 
 

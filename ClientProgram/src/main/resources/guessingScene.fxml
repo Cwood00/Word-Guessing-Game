@@ -12,11 +12,28 @@
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="ClientGUIController"
-            prefHeight="700.0" prefWidth="700.0">
+            prefHeight="700.0" prefWidth="700.0"
+            fx:id="guessingSceneRoot">
 
     <center>
-        <VBox alignment="CENTER">
+        <VBox alignment="CENTER" spacing="40">
+            <TextField fx:id="displayGuessState" editable="false" maxWidth="500" alignment="CENTER">
+                <font>
+                    <Font size="30.0" />
+                </font>
+            </TextField>
 
+            <TextField fx:id="incorrectGuessesText" editable="false" maxWidth="200" alignment="CENTER"
+                       text="Incorrect guesses:"/>
+            <TextField fx:id="incorrectGuessesDisplay" editable="false" maxWidth="200" alignment="CENTER"/>
+
+            <TextField fx:id="enterGuessText" editable="false" maxWidth="100" alignment="CENTER"
+                       text="Enter guess:"/>
+            <TextField fx:id="enterGuessInput" maxWidth="100" alignment="CENTER"/>
+
+            <Button fx:id="sendCharacterButton" text="Send Guess" prefWidth="100" prefHeight="40" onAction="#sendCharacter"/>
+
+            <TextField fx:id="errorDisplay" editable="false" maxWidth="400"/>
         </VBox>
     </center>
 

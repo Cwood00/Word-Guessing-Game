@@ -27,6 +27,9 @@ public class ClientGUI extends Application {
 
 		Parent connectionSceneRoot = FXMLLoader.load(getClass().getResource("connectionScene.fxml"));
 
+		// For testing
+		// Parent connectionSceneRoot = FXMLLoader.load(getClass().getResource("guessingScene.fxml"));
+
 		Scene scene = new Scene(connectionSceneRoot, 700,700);
 
 		primaryStage.setScene(scene);
