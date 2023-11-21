@@ -54,9 +54,9 @@
             </HBox>
 
             <HBox fx:id="attemptsHolder" spacing="110" alignment="CENTER">
-                <Text fx:id="category1Attempts" text = "3"/>
-                <Text fx:id="category2Attempts" text = "3"/>
-                <Text fx:id="category3Attempts" text = "3"/>
+                <Text fx:id="category1Attempts" text = "x"/>
+                <Text fx:id="category2Attempts" text = "x"/>
+                <Text fx:id="category3Attempts" text = "x"/>
             </HBox>
         </VBox>
     </center>

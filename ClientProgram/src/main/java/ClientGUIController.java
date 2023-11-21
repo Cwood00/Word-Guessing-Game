@@ -65,7 +65,7 @@ public class ClientGUIController {
                 // change to category scene
                 if (Objects.equals(input.get(0), "setCategoryScene")) {
                     //System.out.println(input.toString());
-                    setCategoryScene(input.get(1), input.get(2), input.get(3));
+                    setCategoryScene(input.get(1), input.get(2), input.get(3), input.get(4), input.get(5), input.get(6), input.get(7));
                 }
                 // change to guessing scene
                 else if (Objects.equals(input.get(0), "setGuessingScene")) {
@@ -73,7 +73,11 @@ public class ClientGUIController {
                 }
                 // update guessing scene
                 else if (Objects.equals(input.get(0), "updateGuessingScene")) {
-                    updateGuessingScene(input.get(1));
+                    updateGuessingScene(input.get(1), input.get(2));
+                }
+                // resolve guessing round
+                else if (Objects.equals(input.get(0), "resolveGuessingRound")) {
+                    resolveGuessingRound(input.get(1), input.get(2), input.get(3), input.get(4), input.get(5));
                 }
                 // TODO - continue writing
 
@@ -124,18 +128,38 @@ public class ClientGUIController {
     @FXML
     public Text instructionsText;
 
-    void setCategoryScene(String cat1, String cat2, String cat3) {
+    void setCategoryScene(String cat1, String cat2, String cat3, String num1, String num2, String num3, String visit) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("selectCategoryScene.fxml"));
             selectCategoryRoot = loader.load();
 
-            connectionRoot.getScene().setRoot(selectCategoryRoot);
+            if (Objects.equals(visit, "new")) {
+                connectionRoot.getScene().setRoot(selectCategoryRoot);
+            } else {
+                Scene tempScene = guessingSceneRoot.getScene();
+
+                tempScene.setRoot(selectCategoryRoot);
+            }
 
             ClientGUIController newController = loader.getController();
 
             newController.category1Button.setText(cat1);
             newController.category2Button.setText(cat2);
             newController.category3Button.setText(cat3);
+
+            newController.category1Attempts.setText(num1);
+            newController.category2Attempts.setText(num2);
+            newController.category3Attempts.setText(num3);
+
+            if (Objects.equals(num1, "solved")) {
+                newController.category1Button.setDisable(true);
+            }
+            if (Objects.equals(num2, "solved")) {
+                newController.category2Button.setDisable(true);
+            }
+            if (Objects.equals(num3, "solved")) {
+                newController.category3Button.setDisable(true);
+            }
 
 
         } catch (IOException e){
@@ -151,7 +175,9 @@ public class ClientGUIController {
     public void sendCategoryChoice(ActionEvent event) {
         Button source = (Button) event.getSource();
         ClientGUI.client.currentCategory = source.getText();
-        System.out.println("In gui controller: text is " + source.getText());
+        String id = ((Button) event.getSource()).getId();
+        ClientGUI.client.currentCategoryNumber = Integer.parseInt(""+id.charAt(8));
+        System.out.println("In gui controller: text is " + source.getText() + " and number is " + id.charAt(8));
     }
 
 
@@ -225,7 +251,7 @@ public class ClientGUIController {
     }
 
     // updates the guessing scene
-    public void updateGuessingScene(String currGuessState) {
+    public void updateGuessingScene(String currGuessState, String wrongGuesses) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("guessingScene.fxml"));
 
@@ -234,11 +260,11 @@ public class ClientGUIController {
             guessingSceneRoot = loader.load();
 
             tempScene.setRoot(guessingSceneRoot);
-            // TODO - THINKS SCENE IS NULL @ above line
 
             ClientGUIController newController = loader.getController();
 
             newController.displayGuessState.setText(currGuessState);
+            newController.incorrectGuessesDisplay.setText(wrongGuesses);
 
 
         } catch (IOException e){
@@ -248,7 +274,65 @@ public class ClientGUIController {
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
-    }
+    } // end updateGuessingScene()
+
+    public void resolveGuessingRound(String displayText, String currGuessState, String attempts1, String attempts2, String attempts3) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("guessingScene.fxml"));
+
+            Scene tempScene = guessingSceneRoot.getScene();
+
+            guessingSceneRoot = loader.load();
+
+            tempScene.setRoot(guessingSceneRoot);
+
+            ClientGUIController newController = loader.getController();
+
+            newController.displayGuessState.setText(currGuessState);
+            // newController.incorrectGuessesDisplay.setText(wrongGuesses);
+
+            newController.errorDisplay.setText(displayText);
+
+            newController.sendCharacterButton.setText("Select new category");
+            newController.sendCharacterButton.setPrefWidth(200);
+            newController.sendCharacterButton.setOnAction(e->ClientGUI.client.returnToCategories = true);
+
+
+        } catch (IOException e){
+            System.out.println("Error unable to load fxml file for select category log scene");
+            e.printStackTrace();
+
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+    } // end resolveGuessingRound()
+
+
+    public void returnToCategoryScene(String attempts1, String attempts2, String attempts3) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("selectCategoryScene.fxml"));
+
+            Scene tempScene = guessingSceneRoot.getScene();
+
+            selectCategoryRoot = loader.load();
+
+            tempScene.setRoot(selectCategoryRoot);
+
+            ClientGUIController newController = loader.getController();
+
+//            newController.category1Attempts.setText(attempts1);
+//            newController.category2Attempts.setText(attempts2);
+//            newController.category3Attempts.setText(attempts3);
+
+
+        } catch (IOException e){
+            System.out.println("Error unable to load fxml file for select category log scene");
+            e.printStackTrace();
+
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+    } // end returnToCategoryScene()
 
 
 
