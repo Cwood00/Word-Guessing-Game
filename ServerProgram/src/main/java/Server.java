@@ -110,12 +110,14 @@ public class Server{
             }
         }
 
+         //Plays a single round with the user, consisting of guessing a single word
+         //Takes in the users category choice as an argument
          void playRound(String category) throws IOException, ClassNotFoundException {
             int incorrectGuesses = 0;
             //Randomly choose a word from the category for the user to guess
             ArrayList<String> categoryWord = words.get(category);
             String wordToGuess = categoryWord.get(rand.nextInt(categoryWord.size()));
-            String remainingWordToGuess = wordToGuess;
+            String remainingWordToGuess = wordToGuess.toLowerCase();
             categoryWord.remove(wordToGuess);
             GUIprinter.accept(this.getName() + " is trying to guess " + wordToGuess);
             //Set up the string being sent to the user
@@ -128,12 +130,12 @@ public class Server{
                 char guess = Character.toLowerCase((Character)in.readObject());
                 //Determine if the guess is in the word, and mark correct letters is string sent to user
                 boolean guessInWord = false;
-                int guessIndex = remainingWordToGuess.toLowerCase().indexOf(guess);
+                int guessIndex = remainingWordToGuess.indexOf(guess);
                 while(guessIndex != -1){
                     clientDisplayString = clientDisplayString.substring(0, guessIndex) + wordToGuess.charAt(guessIndex) + clientDisplayString.substring(guessIndex + 1);
                     remainingWordToGuess = remainingWordToGuess.substring(0, guessIndex) + "_" + remainingWordToGuess.substring(guessIndex + 1);
                     guessInWord = true;
-                    guessIndex = remainingWordToGuess.toLowerCase().indexOf(guess);
+                    guessIndex = remainingWordToGuess.indexOf(guess);
                 }
                 //Count incorrect guesses
                 if(!guessInWord){
@@ -146,6 +148,7 @@ public class Server{
                     GUIprinter.accept(this.getName() + " failed to guess " + wordToGuess);
                 } else if(!clientDisplayString.contains("_")){
                     roundHasEnded = true;
+                    solvedCategories++;
                     GUIprinter.accept(this.getName() + " successfully guessed " + wordToGuess);
                 }
                 //Send partially guessed word
@@ -153,6 +156,7 @@ public class Server{
             }
         }
 
+        //Checks to see if the game has endded
         void checkGameEnd(){
             //Game ends when all 3 categories have been solved, or the client has fail 3 guesses in a category
             if(solvedCategories == 3){
@@ -167,7 +171,8 @@ public class Server{
                 }
             }
         }
-
+        //Populates the data structures containing the words and categories
+        //Takes in a file to read data from as an argument
         void populateWordsMaps(String fileName) throws IOException {
             this.categories = new ArrayList<>();
             this.words = new HashMap<>();

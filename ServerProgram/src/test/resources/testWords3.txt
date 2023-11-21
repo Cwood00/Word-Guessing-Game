@@ -1,2 +1,6 @@
-Fruits
-Apple, Banana, Grape
+Pets
+Cat
+Colors
+Red
+Palindromes
+Dad

@@ -1,6 +1,6 @@
-Category1
-Cat1Word1, Cat1Word2, Cat1Word3
-Category2
-Cat2Word1, Cat2Word2, Cat2Word3
-Category3
-Cat3Word1, Cat3Word2, Cat3Word3
+Fruits
+Pineapple, Banana, Grape, Apple, Pear, Orange, Kiwi, Cherry
+Animals
+Cat, Dog, Bear, Frog, Owl, Pig, Cow, Chicken
+Midwest States
+Illinois, Indiana, Iowa, Wisconsin, Michigan, Minnesota, Missouri, Ohio
