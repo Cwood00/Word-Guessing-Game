@@ -30,6 +30,7 @@ public class ClientThread extends Thread {
     protected Integer currentCategoryNumber;
     protected Character currentGuess;
     protected boolean returnToCategories;
+    protected boolean exit;
     private String wrongGuesses;
     private String currGuessState;
     private Consumer<Serializable> guiUpdates;
@@ -112,21 +113,32 @@ public class ClientThread extends Thread {
                 changeToCategoryScene("again");
             } else {
                 // if game has ended, go to end scene
-                // goToEndScene(); // TODO - write
+                goToEndScene();
+
+                // infinite loop waiting for user to click button
+                while (!exit) {
+                    try {
+                        sleep(100);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
             }
 
-        }
+        } // end main playing loop
 
 
-        Platform.runLater(()->System.out.println("Now what"));
-    } // end run
+        Platform.runLater(()->System.out.println("Game over"));
+    } // end run()
+
 
     // constructor - sets up the way to talk to the GUI
     public ClientThread(Consumer<Serializable> call, String ip, int port) {
         this.guiUpdates = call;
         this.ipAddress = ip;
         this.portNum = port;
-    }
+    } // end constructor
+
 
     // takes in the address and port # and connects the client with the server
     public boolean establishConnection() {
@@ -173,6 +185,7 @@ public class ClientThread extends Thread {
 
     } // end receiveCategoryTitles()
 
+
     // tells the GUI to change to the category scene
     public void changeToCategoryScene(String visit) {
         ArrayList<String> guiFunctionCall = new ArrayList<>();
@@ -205,7 +218,7 @@ public class ClientThread extends Thread {
         } catch (Exception e) {
             Platform.runLater(()->System.out.println("Unable to send category to server"));
         }
-    } // end selectCategory
+    } // end selectCategory()
 
 
     // receives current guessing state and tells the GUI to change to the guessing scene
@@ -247,7 +260,7 @@ public class ClientThread extends Thread {
         } catch (Exception e) {
             Platform.runLater(()->System.out.println("Error sending current guess"));
         }
-    } // end sendGuess
+    } // end sendGuess()
 
 
     // tells the GUI to update the guessing scene
@@ -322,10 +335,24 @@ public class ClientThread extends Thread {
             playerLost = true;
         }
 
-        if (Objects.equals(categoryAttemptsRemaining.get(0), "solved") || Objects.equals(categoryAttemptsRemaining.get(1), "solved") || Objects.equals(categoryAttemptsRemaining.get(2), "solved")) {
+        if (Objects.equals(categoryAttemptsRemaining.get(0), "solved") && Objects.equals(categoryAttemptsRemaining.get(1), "solved") && Objects.equals(categoryAttemptsRemaining.get(2), "solved")) {
             playerWon = true;
         }
-    }
+    } // end checkGameEnd()
+
+
+    // tells gui to change to end scene and what to display
+    public void goToEndScene() {
+        ArrayList<String> guiFunctionCall = new ArrayList<>();
+        guiFunctionCall.add("goToEndScene");
+        if (playerWon) {
+            guiFunctionCall.add("Congratulations you won!!!");
+        } else if (playerLost) {
+            guiFunctionCall.add("Sorry, you lost :(");
+        }
+
+        guiUpdates.accept(guiFunctionCall);
+    } // goToEndScene()
 
 
 } // end ClientThread class

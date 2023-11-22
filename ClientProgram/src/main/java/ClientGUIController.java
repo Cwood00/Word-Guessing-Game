@@ -5,6 +5,7 @@ import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -79,14 +80,17 @@ public class ClientGUIController {
                 else if (Objects.equals(input.get(0), "resolveGuessingRound")) {
                     resolveGuessingRound(input.get(1), input.get(2), input.get(3), input.get(4), input.get(5));
                 }
-                // TODO - continue writing
+                // go to end scene
+                else if (Objects.equals(input.get(0), "goToEndScene")) {
+                    goToEndScene(input.get(1));
+                }
 
             }); // end runLater
         }, ipAddress, portNum);
 
         ClientGUI.client.start();
 
-    }
+    } // end connectToServer()
 
 
 
@@ -128,6 +132,7 @@ public class ClientGUIController {
     @FXML
     public Text instructionsText;
 
+
     void setCategoryScene(String cat1, String cat2, String cat3, String num1, String num2, String num3, String visit) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("selectCategoryScene.fxml"));
@@ -163,13 +168,14 @@ public class ClientGUIController {
 
 
         } catch (IOException e){
-            System.out.println("Error unable to load fxml file for select category log scene");
+            System.out.println("Error unable to load fxml file for select category scene");
             e.printStackTrace();
 
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
-    }
+    } // end setCategoryScene()
+
 
     // event handler for category buttons
     public void sendCategoryChoice(ActionEvent event) {
@@ -178,7 +184,7 @@ public class ClientGUIController {
         String id = ((Button) event.getSource()).getId();
         ClientGUI.client.currentCategoryNumber = Integer.parseInt(""+id.charAt(8));
         System.out.println("In gui controller: text is " + source.getText() + " and number is " + id.charAt(8));
-    }
+    } // end sendCategoryChoice()
 
 
 // SCENE 3 - guessing letters  ------------------------------------------------
@@ -225,13 +231,13 @@ public class ClientGUIController {
 
 
         } catch (IOException e){
-            System.out.println("Error unable to load fxml file for select category log scene");
+            System.out.println("Error unable to load fxml file for guessing scene");
             e.printStackTrace();
 
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
-    }
+    } // end setGuessingScene()
 
 
     // event handler for sendCharacterButton
@@ -248,7 +254,8 @@ public class ClientGUIController {
             errorDisplay.setText("Sending '" + input + "' to server...");
             ClientGUI.client.currentGuess = input.charAt(0);
         }
-    }
+    } // end sendCharacter()
+
 
     // updates the guessing scene
     public void updateGuessingScene(String currGuessState, String wrongGuesses) {
@@ -268,7 +275,7 @@ public class ClientGUIController {
 
 
         } catch (IOException e){
-            System.out.println("Error unable to load fxml file for select category log scene");
+            System.out.println("Error unable to load fxml file for guessing scene");
             e.printStackTrace();
 
         } catch (NullPointerException e) {
@@ -276,6 +283,8 @@ public class ClientGUIController {
         }
     } // end updateGuessingScene()
 
+
+    // does stuff to the guessing scene when guessing is done
     public void resolveGuessingRound(String displayText, String currGuessState, String attempts1, String attempts2, String attempts3) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("guessingScene.fxml"));
@@ -292,6 +301,11 @@ public class ClientGUIController {
             // newController.incorrectGuessesDisplay.setText(wrongGuesses);
 
             newController.errorDisplay.setText(displayText);
+            if (displayText.charAt(0) == 'C') {
+                newController.errorDisplay.setStyle("-fx-background-color: #58e065");
+            } else if (displayText.charAt(0) == 'S') {
+                newController.errorDisplay.setStyle("-fx-background-color: #e04d28");
+            }
 
             newController.sendCharacterButton.setText("Select new category");
             newController.sendCharacterButton.setPrefWidth(200);
@@ -299,7 +313,7 @@ public class ClientGUIController {
 
 
         } catch (IOException e){
-            System.out.println("Error unable to load fxml file for select category log scene");
+            System.out.println("Error unable to load fxml file for guessing scene");
             e.printStackTrace();
 
         } catch (NullPointerException e) {
@@ -308,6 +322,7 @@ public class ClientGUIController {
     } // end resolveGuessingRound()
 
 
+    // no longer using
     public void returnToCategoryScene(String attempts1, String attempts2, String attempts3) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("selectCategoryScene.fxml"));
@@ -326,7 +341,7 @@ public class ClientGUIController {
 
 
         } catch (IOException e){
-            System.out.println("Error unable to load fxml file for select category log scene");
+            System.out.println("Error unable to load fxml file for select category scene");
             e.printStackTrace();
 
         } catch (NullPointerException e) {
@@ -335,5 +350,47 @@ public class ClientGUIController {
     } // end returnToCategoryScene()
 
 
+
+// SCENE 3 - end scene  -------------------------------------------------------
+
+    @FXML
+    AnchorPane endSceneRoot;
+
+    @FXML
+    Text gameResultDisplay;
+
+    @FXML
+    Button exitButton;
+
+
+    public void goToEndScene(String displayText) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("endScene.fxml"));
+
+            Scene tempScene = guessingSceneRoot.getScene();
+
+            endSceneRoot = loader.load();
+
+            tempScene.setRoot(endSceneRoot);
+
+            ClientGUIController newController = loader.getController();
+
+            newController.gameResultDisplay.setText(displayText);
+
+        } catch (IOException e){
+            System.out.println("Error unable to load fxml file for end scene");
+            e.printStackTrace();
+
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+    } // end goToEndScene()
+
+
+    // event handler for exitButton
+    public void exit() {
+        ClientGUI.client.exit = true;
+        Platform.exit();
+    }
 
 } // end class
