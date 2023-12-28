@@ -5,6 +5,8 @@ import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -196,13 +198,13 @@ public class ClientGUIController {
     TextField displayGuessState;
 
     @FXML
-    TextField incorrectGuessesText;
+    Text incorrectGuessesText;
 
     @FXML
     TextField incorrectGuessesDisplay;
 
     @FXML
-    TextField enterGuessText;
+    Text enterGuessText;
 
     @FXML
     TextField enterGuessInput;
@@ -211,7 +213,7 @@ public class ClientGUIController {
     Button sendCharacterButton;
 
     @FXML
-    TextField errorDisplay;
+    Text errorDisplay;
 
     @FXML
     Text instructionsText2;
@@ -241,7 +243,7 @@ public class ClientGUIController {
 
 
     // event handler for sendCharacterButton
-    public void sendCharacter(ActionEvent event) {
+    public void sendCharacter() {
         String input = enterGuessInput.getText();
         if (input.length() != 1) {
             System.out.println("Enter only one character at a time");
@@ -256,6 +258,15 @@ public class ClientGUIController {
         }
     } // end sendCharacter()
 
+    public void sendCharacterButtonHandler(ActionEvent e){
+        sendCharacter();
+    }
+
+    public void keyboardInputHandler(KeyEvent event){
+        if(event.getCode().equals(KeyCode.ENTER)) {
+            sendCharacter();
+        }
+    }
 
     // updates the guessing scene
     public void updateGuessingScene(String currGuessState, String wrongGuesses) {
@@ -354,7 +365,7 @@ public class ClientGUIController {
 // SCENE 3 - end scene  -------------------------------------------------------
 
     @FXML
-    AnchorPane endSceneRoot;
+    VBox endSceneRoot;
 
     @FXML
     Text gameResultDisplay;

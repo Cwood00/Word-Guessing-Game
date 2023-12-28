@@ -23,17 +23,19 @@
                 </font>
             </TextField>
 
-            <TextField fx:id="incorrectGuessesText" editable="false" maxWidth="200" alignment="CENTER"
-                       text="Incorrect guesses:"/>
+            <Text fx:id="incorrectGuessesText" text="Incorrect guesses:"/>
+
             <TextField fx:id="incorrectGuessesDisplay" editable="false" maxWidth="200" alignment="CENTER"/>
 
-            <TextField fx:id="enterGuessText" editable="false" maxWidth="100" alignment="CENTER"
-                       text="Enter guess:"/>
-            <TextField fx:id="enterGuessInput" maxWidth="100" alignment="CENTER"/>
+            <Text fx:id="enterGuessText" text="Enter guess:"/>
 
-            <Button fx:id="sendCharacterButton" text="Send Guess" prefWidth="100" prefHeight="40" onAction="#sendCharacter"/>
+            <TextField fx:id="enterGuessInput" maxWidth="100" alignment="CENTER"
+                       onKeyPressed="#keyboardInputHandler"/>
 
-            <TextField fx:id="errorDisplay" editable="false" maxWidth="400"/>
+            <Button fx:id="sendCharacterButton" text="Send Guess" prefWidth="100" prefHeight="40"
+                    onAction="#sendCharacterButtonHandler"/>
+
+            <Text fx:id="errorDisplay"/>
         </VBox>
     </center>
 

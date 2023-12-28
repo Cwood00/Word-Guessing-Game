@@ -108,6 +108,7 @@ public class Server{
             catch (IOException e){
                 GUIprinter.accept(this.getName() + " has disconnected");
             }
+            clients.remove(this);
         }
 
          //Plays a single round with the user, consisting of guessing a single word

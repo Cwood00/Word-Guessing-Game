@@ -27,13 +27,16 @@ public class ClientGUI extends Application {
 
 		Parent connectionSceneRoot = FXMLLoader.load(getClass().getResource("connectionScene.fxml"));
 
-		// For testing
-		// Parent connectionSceneRoot = FXMLLoader.load(getClass().getResource("guessingScene.fxml"));
-
 		Scene scene = new Scene(connectionSceneRoot, 700,700);
 
 		primaryStage.setScene(scene);
 		primaryStage.show();
+
+		//Ends all currently running threads when the window is closed
+		primaryStage.setOnCloseRequest(t -> {
+			Platform.exit();
+			System.exit(0);
+		});
 	}
 
 }

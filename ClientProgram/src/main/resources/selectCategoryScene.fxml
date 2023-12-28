@@ -34,6 +34,7 @@
                     <Font size="18.0" />
                 </font>
             </Text>
+            <padding><Insets top="120" left="25"/></padding>
         </VBox>
     </left>
 
