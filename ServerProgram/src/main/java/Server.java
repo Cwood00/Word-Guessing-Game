@@ -12,6 +12,7 @@ public class Server{
     ArrayList<ClientHandlerThread> clients;
     private Consumer<Serializable> GUIprinter;
     int nextClientNumber = 1;
+    static final int MAX_GUESSES = 6;
 
     public Server(int portNumber, Consumer<Serializable> consumer){
 
@@ -95,7 +96,6 @@ public class Server{
                         String selectedCategory = in.readObject().toString();
                         GUIprinter.accept(this.getName() + " has selected category " + selectedCategory);
                         playRound(selectedCategory);
-                        checkGameEnd();
                     }
                     catch (ClassNotFoundException e){
                         GUIprinter.accept(this.getName() + " has sent an invalid class");
@@ -111,10 +111,15 @@ public class Server{
             clients.remove(this);
         }
 
-         //Plays a single round with the user, consisting of guessing a single word
-         //Takes in the users category choice as an argument
-         void playRound(String category) throws IOException, ClassNotFoundException {
-            int incorrectGuesses = 0;
+        //Plays a single round with the user, consisting of guessing a single word
+        // Takes in the users category choice as an argument
+        void playRound(String category) throws IOException, ClassNotFoundException {
+
+            int remainingGuesses = MAX_GUESSES;
+            boolean roundWon = false;
+            boolean roundLost = false;
+            boolean guessInWord = false;
+
             //Randomly choose a word from the category for the user to guess
             ArrayList<String> categoryWord = words.get(category);
             String wordToGuess = categoryWord.get(rand.nextInt(categoryWord.size()));
@@ -123,14 +128,16 @@ public class Server{
             GUIprinter.accept(this.getName() + " is trying to guess " + wordToGuess);
             //Set up the string being sent to the user
             String clientDisplayString = "_".repeat(wordToGuess.length());
-            out.writeObject(clientDisplayString);
-            boolean roundHasEnded = false;
+
             //Play the round
-            while(!roundHasEnded){
+            while(!roundWon && !roundLost){
+                //Send partially guessed word
+                out.writeObject(new GuessResponse(clientDisplayString, remainingGuesses, guessInWord, false, false, false, false));
+
                 //Receive the guess from the client
                 char guess = Character.toLowerCase((Character)in.readObject());
                 //Determine if the guess is in the word, and mark correct letters is string sent to user
-                boolean guessInWord = false;
+                guessInWord = false;
                 int guessIndex = remainingWordToGuess.indexOf(guess);
                 while(guessIndex != -1){
                     clientDisplayString = clientDisplayString.substring(0, guessIndex) + wordToGuess.charAt(guessIndex) + clientDisplayString.substring(guessIndex + 1);
@@ -140,24 +147,25 @@ public class Server{
                 }
                 //Count incorrect guesses
                 if(!guessInWord){
-                    incorrectGuesses += 1;
+                    remainingGuesses -= 1;
                 }
                 //End the round if the client uses are their guesses, or has guessed every letter in the word
-                if(incorrectGuesses >= 6){
+                if(remainingGuesses <= 0){
                     this.failedWords.replace(category, (this.failedWords.get(category) + 1));
-                    roundHasEnded = true;
+                    roundLost = true;
                     GUIprinter.accept(this.getName() + " failed to guess " + wordToGuess);
                 } else if(!clientDisplayString.contains("_")){
-                    roundHasEnded = true;
+                    roundWon = true;
                     solvedCategories++;
                     GUIprinter.accept(this.getName() + " successfully guessed " + wordToGuess);
                 }
-                //Send partially guessed word
-                out.writeObject(clientDisplayString);
+
             }
+            checkGameEnd();
+            out.writeObject(new GuessResponse(clientDisplayString, remainingGuesses, guessInWord, roundWon, roundLost, this.playerHasWon, this.playerHasLost));
         }
 
-        //Checks to see if the game has endded
+        //Checks to see if the game has ended
         void checkGameEnd(){
             //Game ends when all 3 categories have been solved, or the client has fail 3 guesses in a category
             if(solvedCategories == 3){

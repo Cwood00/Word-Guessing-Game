@@ -1,12 +1,8 @@
-import javafx.application.Platform;
-
-import java.io.IOException;
 import java.net.Socket;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -24,8 +20,10 @@ public class ClientThread extends Thread {
     //private HashMap<String, String> categories; // name of category, num of attempts left
     private ArrayList<String> categoryTitles;
     private ArrayList<String> categoryAttemptsRemaining;
-    private boolean playerWon;
-    private boolean playerLost;
+    private boolean gameWon;
+    private boolean gameLost;
+    private boolean roundWon;
+    private boolean roundLost;
     protected String currentCategory;
     protected Integer currentCategoryNumber;
     protected Character currentGuess;
@@ -40,7 +38,7 @@ public class ClientThread extends Thread {
     // everything that happens when the thread is running
     public void run() {
 
-        Platform.runLater(()->System.out.println("Running"));
+        System.out.println("Running");
 
         // connect to server
         boolean connectedSuccessfully = establishConnection();
@@ -52,8 +50,8 @@ public class ClientThread extends Thread {
         currentCategory = "";
         currentCategoryNumber = 0;
         currentGuess = null;
-        playerWon = false;
-        playerLost = false;
+        gameWon = false;
+        gameLost = false;
 
         // receives category titles from the server
         receiveCategoryTitles();
@@ -61,43 +59,42 @@ public class ClientThread extends Thread {
         // updates the gui
         changeToCategoryScene("new");
 
-        while (!playerWon && !playerLost) {
+        while (!gameWon && !gameLost) {
             returnToCategories = false;
 
-            Platform.runLater(() -> System.out.println("CT: Changed to category scene"));
+            System.out.println("CT: Changed to category scene");
 
             // sends selected category to the server
             selectCategory();
 
-            Platform.runLater(() -> System.out.println("CT: Sent category to server"));
+            System.out.println("CT: Sent category to server");
 
 
             // receives current guess state and changes to guessing scene
             changeToGuessingScene();
 
-            Platform.runLater(() -> System.out.println("CT: Changed to guessing scene, current guessing state is: " + currGuessState));
+            System.out.println("CT: Changed to guessing scene, current guessing state is: " + currGuessState);
 
+            roundWon = false;
+            roundLost = false;
             // while round is still going
             wrongGuesses = "";
-            while (wrongGuesses.length() < 16 && currGuessState.contains("_")) {
+            while (!roundWon && !roundLost) {
 
                 // user sends guess, receives updated guess state
                 sendGuess();
 
-                Platform.runLater(() -> System.out.println("CT: Sent guess to server"));
+                System.out.println("CT: Sent guess to server");
 
                 // receives updated game state, updates scene
                 updateGuessingScene();
 
-                Platform.runLater(() -> System.out.println("CT: Updated guessing state is: " + currGuessState));
+                System.out.println("CT: Updated guessing state is: " + currGuessState);
 
             }
 
             // guessing round has ended
             resolveGuessingRound();
-
-            // check if game has ended
-            checkGameEnd();
 
             // infinite loop waiting for user to click button
             while (!returnToCategories) {
@@ -108,7 +105,7 @@ public class ClientThread extends Thread {
                 }
             }
 
-            if (!playerWon && !playerLost) {
+            if (!gameWon && !gameLost) {
                 // if game has not ended, go back to category scene
                 changeToCategoryScene("again");
             } else {
@@ -128,7 +125,7 @@ public class ClientThread extends Thread {
         } // end main playing loop
 
 
-        Platform.runLater(()->System.out.println("Game over"));
+        System.out.println("Game over");
     } // end run()
 
 
@@ -150,11 +147,11 @@ public class ClientThread extends Thread {
             connection.setTcpNoDelay(true);
         }
         catch(Exception e) {
-            Platform.runLater(()->System.out.println("Issue connecting to the server. Try a different address."));
+            System.out.println("Issue connecting to the server. Try a different address.");
             return false;
         }
 
-        Platform.runLater(()->System.out.println("Successfully connected to the server"));
+        System.out.println("Successfully connected to the server");
         return true;
 
     } // end establishConnection()
@@ -167,7 +164,7 @@ public class ClientThread extends Thread {
         try{
             categoryTitles = (ArrayList<String>) in.readObject();
         } catch (Exception e) {
-            Platform.runLater(()->System.out.println("Categories not received"));
+            System.out.println("Categories not received");
 
             categoryTitles = new ArrayList<>(3);
             categoryTitles.add("error");
@@ -216,7 +213,7 @@ public class ClientThread extends Thread {
             // Platform.runLater(()->System.out.println("In client thread: text is " + currentCategory));
             out.writeObject(currentCategory);
         } catch (Exception e) {
-            Platform.runLater(()->System.out.println("Unable to send category to server"));
+            System.out.println("Unable to send category to server");
         }
     } // end selectCategory()
 
@@ -224,16 +221,16 @@ public class ClientThread extends Thread {
     // receives current guessing state and tells the GUI to change to the guessing scene
     public void changeToGuessingScene() {
         // receive current guessing state from server
-        String currentState;
+        GuessResponse serverResponse;
         try{
-            currentState = in.readObject().toString();
+            serverResponse = (GuessResponse)in.readObject();
         } catch (Exception e) {
-            Platform.runLater(()->System.out.println("Guessing state not received"));
-            currentState = "error in receiving word";
+            System.out.println("Guessing state not received");
+            throw new RuntimeException(e);
         }
 
         // set class variable
-        currGuessState = currentState;
+        currGuessState = serverResponse.displayString;
 
         // tells GUI what the guess state is,
         // GUI changes to the guessing scene
@@ -254,11 +251,11 @@ public class ClientThread extends Thread {
                 throw new RuntimeException(e);
             }
         } // infinite loop waiting until a button sets the selected guess
-        Platform.runLater(()->System.out.println("In clientThread: guess is " + currentGuess));
+        System.out.println("In clientThread: guess is " + currentGuess);
         try {
             out.writeObject(currentGuess);
         } catch (Exception e) {
-            Platform.runLater(()->System.out.println("Error sending current guess"));
+            System.out.println("Error sending current guess");
         }
     } // end sendGuess()
 
@@ -266,17 +263,21 @@ public class ClientThread extends Thread {
     // tells the GUI to update the guessing scene
     public void updateGuessingScene() {
         // receive updated guessing state from server
-        String newState;
+        GuessResponse serverResponse;
         try{
-            newState = in.readObject().toString();
+            serverResponse = (GuessResponse)in.readObject();
         } catch (Exception e) {
-            Platform.runLater(()->System.out.println("Guessing state not received"));
-            newState = "error in receiving word";
+            System.out.println("Guessing state not received");
+            throw new RuntimeException(e);
         }
 
-        // checks if the guess was incorrect or not (if the string changed or not)
-        if (Objects.equals(newState, currGuessState)) {
-            Platform.runLater(()->System.out.println("Guess of '" + currentGuess + "' was wrong"));
+        gameWon = serverResponse.gameWon;
+        gameLost = serverResponse.gameLost;
+        roundWon = serverResponse.roundWon;
+        roundLost = serverResponse.roundLost;
+
+        if (!serverResponse.correctGuess) {
+            System.out.println("Guess of '" + currentGuess + "' was wrong");
             if (wrongGuesses.isEmpty()) {
                 wrongGuesses = "" + currentGuess;
             } else {
@@ -286,7 +287,7 @@ public class ClientThread extends Thread {
         currentGuess = null;
 
         // set class variable
-        currGuessState = newState;
+        currGuessState = serverResponse.displayString;
 
         // tells GUI what the guess state is,
         // GUI changes to the guessing scene
@@ -306,7 +307,7 @@ public class ClientThread extends Thread {
         guiFunctionCall.add("resolveGuessingRound");
 
         // did not fully guess word
-        if (currGuessState.contains("_")) {
+        if (roundLost) {
             int attempts = Integer.parseInt(categoryAttemptsRemaining.get(currentCategoryNumber-1));
             attempts--;
             categoryAttemptsRemaining.set(currentCategoryNumber-1, ""+attempts);
@@ -321,33 +322,20 @@ public class ClientThread extends Thread {
 
         guiFunctionCall.add(currGuessState);
 
-        guiFunctionCall.add(""+categoryAttemptsRemaining.get(0));
-        guiFunctionCall.add(""+categoryAttemptsRemaining.get(1));
-        guiFunctionCall.add(""+categoryAttemptsRemaining.get(2));
+        guiFunctionCall.add(categoryAttemptsRemaining.get(0));
+        guiFunctionCall.add(categoryAttemptsRemaining.get(1));
+        guiFunctionCall.add(categoryAttemptsRemaining.get(2));
 
         guiUpdates.accept(guiFunctionCall);
     } // end resolveGuessingRound()
-
-
-    // evaluates if the game is finished
-    public void checkGameEnd() {
-        if (Objects.equals(categoryAttemptsRemaining.get(0), "0") || Objects.equals(categoryAttemptsRemaining.get(1), "0") || Objects.equals(categoryAttemptsRemaining.get(2), "0")) {
-            playerLost = true;
-        }
-
-        if (Objects.equals(categoryAttemptsRemaining.get(0), "solved") && Objects.equals(categoryAttemptsRemaining.get(1), "solved") && Objects.equals(categoryAttemptsRemaining.get(2), "solved")) {
-            playerWon = true;
-        }
-    } // end checkGameEnd()
-
 
     // tells gui to change to end scene and what to display
     public void goToEndScene() {
         ArrayList<String> guiFunctionCall = new ArrayList<>();
         guiFunctionCall.add("goToEndScene");
-        if (playerWon) {
+        if (gameWon) {
             guiFunctionCall.add("Congratulations you won!!!");
-        } else if (playerLost) {
+        } else if (gameLost) {
             guiFunctionCall.add("Sorry, you lost :(");
         }
 

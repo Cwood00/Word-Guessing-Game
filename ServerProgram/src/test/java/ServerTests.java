@@ -156,40 +156,43 @@ class ServerTests{
 			ArrayList<String> categories = (ArrayList<String>)in.readObject();
 			out.writeObject("Fruits");
 
-			String receivedString = in.readObject().toString();
-			assertEquals("_________", receivedString);
+			GuessResponse response = (GuessResponse)in.readObject();
+			assertEquals("_________", response.displayString);
 
 			out.writeObject('i');
-			receivedString = in.readObject().toString();
-			assertEquals("_i_______", receivedString);
+			response = (GuessResponse)in.readObject();
+			assertEquals("_i_______", response.displayString);
 
 			out.writeObject('N');
-			receivedString = in.readObject().toString();
-			assertEquals("_in______", receivedString);
+			response = (GuessResponse)in.readObject();
+			assertEquals("_in______", response.displayString);
 
 			out.writeObject('z');
-			receivedString = in.readObject().toString();
-			assertEquals("_in______", receivedString);
+			response = (GuessResponse)in.readObject();
+			assertEquals("_in______", response.displayString);
 
 			out.writeObject('e');
-			receivedString = in.readObject().toString();
-			assertEquals("_ine____e", receivedString);
+			response = (GuessResponse)in.readObject();
+			assertEquals("_ine____e", response.displayString);
 
 			out.writeObject('p');
-			receivedString = in.readObject().toString();
-			assertEquals("Pine_pp_e", receivedString);
+			response = (GuessResponse)in.readObject();
+			assertEquals("Pine_pp_e", response.displayString);
 
 			out.writeObject('y');
-			receivedString = in.readObject().toString();
-			assertEquals("Pine_pp_e", receivedString);
+			response = (GuessResponse)in.readObject();
+			assertEquals("Pine_pp_e", response.displayString);
 
 			out.writeObject('l');
-			receivedString = in.readObject().toString();
-			assertEquals("Pine_pple", receivedString);
+			response = (GuessResponse)in.readObject();
+			assertEquals("Pine_pple", response.displayString);
 
 			out.writeObject('a');
-			receivedString = in.readObject().toString();
-			assertEquals("Pineapple", receivedString);
+			response = (GuessResponse)in.readObject();
+			assertEquals("Pineapple", response.displayString);
+
+			assertTrue(response.roundWon);
+			assertFalse(response.roundLost);
 
 			//Put the tread to sleep, to wait for server call back response
 			try {Thread.sleep(100);}
@@ -224,40 +227,43 @@ class ServerTests{
 			ArrayList<String> categories = (ArrayList<String>)in.readObject();
 			out.writeObject("Fruits");
 
-			String receivedString = in.readObject().toString();
-			assertEquals("_________", receivedString);
+			GuessResponse response = (GuessResponse)in.readObject();
+			assertEquals("_________", response.displayString);
 
 			out.writeObject('z');
-			receivedString = in.readObject().toString();
-			assertEquals("_________", receivedString);
+			response = (GuessResponse)in.readObject();
+			assertEquals("_________", response.displayString);
 
 			out.writeObject('y');
-			receivedString = in.readObject().toString();
-			assertEquals("_________", receivedString);
+			response = (GuessResponse)in.readObject();
+			assertEquals("_________", response.displayString);
 
 			out.writeObject('i');
-			receivedString = in.readObject().toString();
-			assertEquals("_i_______", receivedString);
+			response = (GuessResponse)in.readObject();
+			assertEquals("_i_______", response.displayString);
 
 			out.writeObject('x');
-			receivedString = in.readObject().toString();
-			assertEquals("_i_______", receivedString);
+			response = (GuessResponse)in.readObject();
+			assertEquals("_i_______", response.displayString);
 
 			out.writeObject('w');
-			receivedString = in.readObject().toString();
-			assertEquals("_i_______", receivedString);
+			response = (GuessResponse)in.readObject();
+			assertEquals("_i_______", response.displayString);
 
 			out.writeObject('e');
-			receivedString = in.readObject().toString();
-			assertEquals("_i_e____e", receivedString);
+			response = (GuessResponse)in.readObject();
+			assertEquals("_i_e____e", response.displayString);
 
 			out.writeObject('v');
-			receivedString = in.readObject().toString();
-			assertEquals("_i_e____e", receivedString);
+			response = (GuessResponse)in.readObject();
+			assertEquals("_i_e____e", response.displayString);
 
 			out.writeObject('u');
-			receivedString = in.readObject().toString();
-			assertEquals("_i_e____e", receivedString);
+			response = (GuessResponse)in.readObject();
+			assertEquals("_i_e____e", response.displayString);
+
+			assertTrue(response.roundLost);
+			assertFalse(response.roundWon);
 
 			//Put the tread to sleep, to wait for server call back response
 			try {Thread.sleep(100);}
@@ -293,37 +299,40 @@ class ServerTests{
 			ArrayList<String> categories = (ArrayList<String>)in.readObject();
 
 			out.writeObject("Pets");
-			String receivedString = in.readObject().toString();
+			in.readObject();
 
 			out.writeObject('c');
-			receivedString = in.readObject().toString();
+			in.readObject();
 
 			out.writeObject('a');
-			receivedString = in.readObject().toString();
+			in.readObject();
 
 			out.writeObject('t');
-			receivedString = in.readObject().toString();
+			in.readObject();
 
 			out.writeObject("Colors");
-			receivedString = in.readObject().toString();
+			in.readObject();
 
 			out.writeObject('r');
-			receivedString = in.readObject().toString();
+			in.readObject();
 
 			out.writeObject('e');
-			receivedString = in.readObject().toString();
+			in.readObject();
 
 			out.writeObject('d');
-			receivedString = in.readObject().toString();
+			in.readObject();
 
 			out.writeObject("Palindromes");
-			receivedString = in.readObject().toString();
+			in.readObject();
 
 			out.writeObject('d');
-			receivedString = in.readObject().toString();
+			in.readObject();
 
 			out.writeObject('a');
-			receivedString = in.readObject().toString();
+			GuessResponse response = (GuessResponse)in.readObject();
+
+			assertTrue(response.gameWon);
+			assertFalse(response.gameLost);
 
 			//Put the tread to sleep, to wait for server call back response
 			try {Thread.sleep(100);}
@@ -358,29 +367,35 @@ class ServerTests{
 
 			ArrayList<String> categories = (ArrayList<String>)in.readObject();
 
+			GuessResponse response = null;
+
 			//Play 3 games losing each
 			for(int i = 0; i < 3; i++){
 				out.writeObject("Fruits");
-				String receivedString = in.readObject().toString();
+				in.readObject();
 
 				out.writeObject('z');
-				receivedString = in.readObject().toString();
+				in.readObject();
 
 				out.writeObject('y');
-				receivedString = in.readObject().toString();
+				in.readObject();
 
 				out.writeObject('x');
-				receivedString = in.readObject().toString();
+				in.readObject();
 
 				out.writeObject('w');
-				receivedString = in.readObject().toString();
+				in.readObject();
 
 				out.writeObject('v');
-				receivedString = in.readObject().toString();
+				in.readObject();
 
 				out.writeObject('u');
-				receivedString = in.readObject().toString();
+				response = (GuessResponse) in.readObject();
 			}
+
+			assertFalse(response.gameWon);
+			assertTrue(response.gameLost);
+
 			//Put the tread to sleep, to wait for server call back response
 			try {Thread.sleep(100);}
 			catch (InterruptedException e){/* no-op */}
@@ -418,28 +433,28 @@ class ServerTests{
 
 			for(int i = 0; i < 3; i++){
 				out.writeObject("Test");
-				String receivedString = in.readObject().toString();
+				in.readObject();
 
 				out.writeObject('x');
-				partiallyGuessedWords.add(in.readObject().toString());
+				partiallyGuessedWords.add(((GuessResponse)in.readObject()).displayString);
 
 				out.writeObject('a');
-				receivedString = in.readObject().toString();
+				in.readObject();
 
 				out.writeObject('b');
-				receivedString = in.readObject().toString();
+				in.readObject();
 
 				out.writeObject('c');
-				receivedString = in.readObject().toString();
+				in.readObject();
 
 				out.writeObject('d');
-				receivedString = in.readObject().toString();
+				in.readObject();
 
 				out.writeObject('e');
-				receivedString = in.readObject().toString();
+				in.readObject();
 
 				out.writeObject('f');
-				receivedString = in.readObject().toString();
+				in.readObject();
 			}
 			assertNotEquals(partiallyGuessedWords.get(0), partiallyGuessedWords.get(1));
 			assertNotEquals(partiallyGuessedWords.get(0), partiallyGuessedWords.get(2));
